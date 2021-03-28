@@ -1,4 +1,5 @@
-function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
+%function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
+function w = get_strategy_weights(lambda,i,simObj)
     load('../data/final_net.mat')
     numSteps = window_size; clear window_size;
     %Use the do nothing strategy until time-step window_size+1.
@@ -14,6 +15,8 @@ function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
     prob.Objective = fcn2optimexpr(fun,u,s,r,uprev,eta);
     opts=optimoptions('fmincon', 'MaxFunctionEvaluations',10000,'Display','off');
     spred=0; snew = 0; s_r = 0;
+    % Scale eta for this problem given lambda.
+    eta = simObj.eta*(1+lambda-0.2); % no scaling done.
     if i < floor(numSteps/2)
         % do nothing.
         if i == 1
@@ -44,15 +47,14 @@ function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
         s = simObj.s_hist(:,i-1:i);                          % stock prices at previous/current period.
         sprev = s(:,1); s= s(:,2);
         Pprev = simObj.P_hist(i-1);                            % portfolio value at previous/current period.
-        % Scale eta for this problem given lambda.
-        eta = simObj.eta*(1+lambda-0.2); % no scaling done.
 
         % Set up an optimization problem w.r.t. u.
         uprev = simObj.w_hist(:,i-1).*simObj.P_hist(i-1)./simObj.s_hist(:,i-1);
         %% Initialize a guess and solve.
         prob.Objective = fcn2optimexpr(fun,u,s,r,uprev,eta);
         init.u = uprev;
-        [solu,fvalproblem,exitflagproblem,outputproblem] = solve(prob,init,'options',opts);
+        %[solu,fvalproblem,exitflagproblem,outputproblem] = solve(prob,init,'options',opts);
+        [solu,~,exitflagproblem,~] = solve(prob,init,'options',opts);
         if exitflagproblem == 0
             u_prev = simObj.w_hist(:,i-1).*simObj.P_hist(i-1)./simObj.s_hist(:,i-1);
             w = simObj.w_hist(:,i-1).*(simObj.P_hist(i-1)*simObj.s_cur./(sum((u_prev.*simObj.s_cur))*simObj.s_hist(:,i-1)));

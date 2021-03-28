@@ -7,10 +7,11 @@
   efps = zeros(simObj.T,1);
   for i=1:simObj.T
     %i
-    [w,efp,snew] = get_strategy_weights(lambda,i,simObj); % your strategy should return the weights
-    efps(i) = efp;
+    %[w,efp,snew] = get_strategy_weights(lambda,i,simObj); % your strategy should return the weights
+    %efps(i) = efp;
+    w=get_strategy_weights(lambda,i,simObj);
     simObj.step(w);
-    if i > 40
-      serr(i)=norm(simObj.s_cur-snew)/norm(simObj.s_cur);
-    end
+    % if i > 40
+    %   serr(i)=norm(simObj.s_cur-snew)/norm(simObj.s_cur);
+    % end
 end
