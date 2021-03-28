@@ -9,9 +9,10 @@ function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
    
     exitflagproblem=0;
     prob = optimproblem();
-    u = optimvar('u',d,1,'Lowerbound',0);
+    u = optimvar('u',d,1,'Lowerbound',0);s=zeros(d,1);r=zeros(d,1);uprev=zeros(d,1);eta=simObj.eta;
     fun = @(u,s,r,uprev,eta)-dot(u.*s,r)/(dot(u,s)-eta*sum(abs(u-uprev))) + eta*sum(abs(u-uprev));
-    opts=optimoptions('fmincon', 'MaxFunctionEvaluations',10000);
+    prob.Objective = fcn2optimexpr(fun,u,s,r,uprev,eta);
+    opts=optimoptions('fmincon', 'MaxFunctionEvaluations',10000,'Display','off');
     spred=0; snew = 0; s_r = 0;
     if i < floor(numSteps/2)
         % do nothing.
@@ -44,7 +45,7 @@ function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
         sprev = s(:,1); s= s(:,2);
         Pprev = simObj.P_hist(i-1);                            % portfolio value at previous/current period.
         % Scale eta for this problem given lambda.
-        eta = simObj.eta; % no scaling done.
+        eta = simObj.eta*(1+lambda-0.2); % no scaling done.
 
         % Set up an optimization problem w.r.t. u.
         uprev = simObj.w_hist(:,i-1).*simObj.P_hist(i-1)./simObj.s_hist(:,i-1);

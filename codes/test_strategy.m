@@ -1,5 +1,5 @@
- function [simObj,efps] = test_strategy(simObj, lambda)
-
+ function [simObj,efps,serr] = test_strategy(simObj, lambda)
+  serr = zeros(simObj.T,1);
   if nargin<2
     lambda = 0.5;
   end
@@ -11,6 +11,6 @@
     efps(i) = efp;
     simObj.step(w);
     if i > 40
-      (simObj.s_cur-snew)./simObj.s_cur;
+      serr(i)=norm(simObj.s_cur-snew)/norm(simObj.s_cur);
     end
 end

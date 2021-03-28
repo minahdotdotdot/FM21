@@ -72,8 +72,9 @@ options = trainingOptions('adam', ...
     'Verbose',1);
 
 %% Train.
-net = trainNetwork(Xtrn,Ytrn,layers,options);
-save('../data/final_net.mat','net')
+%net = trainNetwork(Xtrn,Ytrn,layers,options);
+%save('../data/final_net.mat','net')
 
 
 load('../data/final_net.mat','net')
+valPred = predict(net,Xval)
