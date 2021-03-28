@@ -11,6 +11,6 @@
     efps(i) = efp;
     simObj.step(w);
     if i > 40
-      (simObj.s_cur-snew)./simObj.s_cur
+      (simObj.s_cur-snew)./simObj.s_cur;
     end
 end

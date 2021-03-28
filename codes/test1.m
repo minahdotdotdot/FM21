@@ -58,5 +58,5 @@ legend
 xlabel('Variance')
 ylabel('Expected Value')
 title("Compare Strategies")
-saveas(gcf,"../figs/test1.png")
+saveas(gcf,"../figs/test1_0328.png")
 clf();

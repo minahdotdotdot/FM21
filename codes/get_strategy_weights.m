@@ -1,16 +1,19 @@
 function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
-    %Do nothing until time-step 41.
-    numSteps = 40;
+    load('../data/final_net.mat')
+    numSteps = window_size; clear window_size;
+    %Use the do nothing strategy until time-step window_size+1.
+    %But use
+    %numSteps = 40;
     d=size(simObj.s_hist,1);
-    load('../data/model_40_2.mat')
+    %load('../data/model_40_2.mat')
+   
     exitflagproblem=0;
     prob = optimproblem();
     u = optimvar('u',d,1,'Lowerbound',0);
     fun = @(u,s,r,uprev,eta)-dot(u.*s,r)/(dot(u,s)-eta*sum(abs(u-uprev))) + eta*sum(abs(u-uprev));
     opts=optimoptions('fmincon', 'MaxFunctionEvaluations',10000);
-    spred=0;
-    snew = 0;
-    if i < numSteps
+    spred=0; snew = 0; s_r = 0;
+    if i < floor(numSteps/2)
         % do nothing.
         if i == 1
             w= ones(simObj.d,1)/simObj.d;
@@ -23,8 +26,17 @@ function [w,exitflagproblem,snew]=get_strategy_weights(lambda,i,simObj)
         % First, predict the stock prices at time i+1;
         %snew = model(simObj,i);
         %snew = simObj.s_hist(:,i+1);
-        s_r = reshape(simObj.s_hist(:,i-numSteps+1:i)',numSteps,1,1,[]);
-        snew = double(predict(net,s_r-100))+100;
+        %s_r = reshape(simObj.s_hist(:,i-numSteps+1:i)',numSteps,1,1,[]);
+        if i < numSteps
+            s_r = simObj.s_hist(:,1:i);
+        else
+            s_r = simObj.s_hist(:,i-numSteps+1:i);
+        end
+        m_s_r = mean(s_r,2);
+        scell = mat2cell(s_r-m_s_r,ones(d,1));
+        snew = double(predict(net,scell)) + m_s_r;
+        %snew = double(predict(net,s_r-100))+100;
+        
         %% Now, use snew to solve the optimization problem.
         r = (snew- simObj.s_hist(:,i))./simObj.s_hist(:,i); % return given snew.
         wprev = simObj.w_hist(:,i-1);                         % weights at previous period.
