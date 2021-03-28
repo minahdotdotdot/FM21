@@ -43,4 +43,4 @@ yline(mbounds(2),'r'); hold on
 plot(x,macfs);hold on
 plot(x,macfs-sacfs);hold on
 plot(x,macfs+sacfs);hold on
-saveas(gcf,'./figs/acf.png')
+saveas(gcf,'../figs/acf.png')

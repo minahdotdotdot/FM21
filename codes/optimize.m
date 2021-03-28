@@ -20,10 +20,12 @@ sim_obj = example_strategy_1(sim_obj);
 
 %% Choose a data point.
 tt = 10
-r = (sim_obj.s_hist(:,tt+1) -news- sim_obj.s_hist(:,tt))./sim_obj.s_hist(:,tt); % return given news.
+s = sim_obj.s_hist(:,tt-1:tt+1);                                 % stock prices at previous/current period.
+sprev = s(:,1); snew = s(:,3); s = s(:,2);
+r = (sim_obj.s_hist(:,tt+1) -snew- sim_obj.s_hist(:,tt))./sim_obj.s_hist(:,tt); % return given news.
 wprev = sim_obj.w_hist(:,tt-1);                                                 % weights at previous period.
-sprev, s = sim_obj.s_hist(:,tt-1:tt);                                           % stock prices at previous/current period.
-Pprev, P = sim_obj.P_hist(tt-1:tt);                                             % portfolio value at previous/current period.
+P = sim_obj.P_hist(tt-1:tt);                                            % portfolio value at previous/current period.
+Pprev = P(1); P = P(2);
 
 %% Set up problem w.r.t. w(tt)
 prob = optimproblem();
@@ -33,10 +35,26 @@ fun = @(w,r,s,P,wprev,sprev,Pprev)-dot(w,r) + eta*sum(abs((P*w./s)-(Pprev*wprev.
 %prob.Objective = fcn2optimexpr(fun,w,r,wprev);
 prob.Objective = fcn2optimexpr(fun,w,r,s,P,wprev,sprev,Pprev)
 prob.Constraints.cons1 = sum(w) == 1;
-
 %% Initialize a guess and solve.
 init.w = wprev;
-[sol,fvalproblem,exitflagproblem,outputproblem] = solve(prob,init)
-[sol.w,sol.w-wprev,r]
+[solw,fvalproblem,exitflagproblem,outputproblem] = solve(prob,init)
+[solw.w,solw.w-wprev,r]
 %eta
-sum(abs((P*sol.w./s)-(Pprev*wprev./sprev)))
+sum(abs((P*solw.w./s)-(Pprev*wprev./sprev)))
+
+
+%% Set up problem w.r.t. u
+u_prev = simObj.w_hist(:,tt-1).*simObj.P_hist(tt-1)./simObj.s_hist(:,tt-1);
+prob = optimproblem();
+u = optimvar('u',d,1,'Lowerbound',0);
+fun = @(u,s,r,u_prev)-dot(u.*s,r)/(dot(u,s)-eta*sum(abs(u-u_prev))) + eta*sum(abs(u-u_prev));
+prob.Objective = fcn2optimexpr(fun,u,s,r,u_prev)
+
+%% Initialize a guess and solve.
+init.u = u_prev;
+[solu,fvalproblem,exitflagproblem,outputproblem] = solve(prob,init);
+P = dot(solu.u,s)-eta*sum(abs(solu.u-u_prev));
+w = solu.u.*s/P;
+[w,wprev,r]
+
+[solw.w, w]
