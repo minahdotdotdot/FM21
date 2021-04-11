@@ -4,13 +4,14 @@ addpath('../../MathWorks');
 
 d = 50; 
 T = 500;
+rng(123);
 
 %% Initialize Simobj.
 initialize_sim
 
 %% Run experiment
 ns = linspace(1,50,50); % n is winners.
-trials = 200; %number of trials
+trials = 10; %number of trials
 
 results = zeros(length(ns), trials);
 for ii = 1 : length(ns)
@@ -48,7 +49,7 @@ end
 clf();
 figure(1);
 subplot(131)
-plot(ns,means); hold on;
+scatter(ns,means,'filled','k'); hold on;
 plot(ns, means-1.96*vars/sqrt(trials)); hold on;
 plot(ns, means+1.96*vars/sqrt(trials)); 
 xlabel('Number of winners')
