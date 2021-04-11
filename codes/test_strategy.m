@@ -1,5 +1,6 @@
  function [simObj,efps,serr] = test_strategy(simObj, lambda)
-  serr = zeros(simObj.T,1);
+  d=size(simObj.s_hist,1);
+  serr = zeros(d,simObj.T);
   if nargin<2
     lambda = 0.5;
   end
@@ -7,11 +8,12 @@
   efps = zeros(simObj.T,1);
   for i=1:simObj.T
     %i
-    %[w,efp,snew] = get_strategy_weights(lambda,i,simObj); % your strategy should return the weights
-    %efps(i) = efp;
-    w=get_strategy_weights(lambda,i,simObj);
+    [w,efp,snew] = get_strategy_weights(lambda,i,simObj); % your strategy should return the weights
+    efps(i) = efp;
+    %[w,snew]=get_strategy_weights(lambda,i,simObj);
     simObj.step(w);
-    % if i > 40
-    %   serr(i)=norm(simObj.s_cur-snew)/norm(simObj.s_cur);
-    % end
+    %norm(simObj.s_cur-snew)/norm(simObj.s_cur)
+    if i > 20
+       serr(:,i)=snew;
+    end
 end

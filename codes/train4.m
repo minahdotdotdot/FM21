@@ -6,7 +6,7 @@ data=reshape(data,size(data,1)*size(data,2),[]);
 %data = (data-data_mean)/data_std;
 
 window_size = 40;
-numResponses =1;
+numResponses =2;
 total_samples = size(data,1)*(size(data,2)-window_size-1);
 
 count = 0;
@@ -33,31 +33,29 @@ Ytrn = zeros(n.TRAIN,numResponses);
 for ii = 1 : n.TRAIN
     Xtrn{ii} = data_c(ii:ii,1:end-1);
     m = mean(Xtrn{ii}); Xtrn{ii} = Xtrn{ii}-m;
-    %Ytrn(ii) = data_c(ii:ii,end)-m;
-    Ytrn(ii) = data_c(ii:ii,end)-data_c(ii:ii,end-1);
+    Ytrn(ii,1) = data_c(ii:ii,end)-m;
 end
 Xval = cell(n.TEST, 1);
 Yval = zeros(n.TEST,numResponses);
 for ii = 1:n.TEST
     Xval{ii} = data_c(ii+n.TRAIN:ii+n.TRAIN,1:end-1);
     m = mean(Xval{ii}); Xval{ii} = Xval{ii}-m;
-    %Yval(ii) = data_c(ii+n.TRAIN:ii+n.TRAIN,end)-m;
-    Yval(ii) = data_c(ii+n.TRAIN:ii+n.TRAIN,end)-data_c(ii+n.TRAIN:ii+n.TRAIN,end-1);
+    Yval(ii,1) = data_c(ii+n.TRAIN:ii+n.TRAIN,end)-m;
 end
 clear data_c
 
 %% Set up model.
 numFeatures = 1;
-numResponses = 1;
 numHiddenUnits = 32;
 layers = [ ...
     sequenceInputLayer(numFeatures)
     %lstmLayer(numHiddenUnits, 'OutputMode','sequence')
     lstmLayer(numHiddenUnits,'OutputMode','last')
     fullyConnectedLayer(numResponses)
-    regressionLayer];
+    %sigmoidLayer('Name', 'sig1')
+    bayesianRegressionLayer('baye')];
 
-%% Train options
+    %% Train options
 epochs = 100;
 options = trainingOptions('adam', ...
     'MaxEpochs',epochs, ...
@@ -68,27 +66,38 @@ options = trainingOptions('adam', ...
     'LearnRateDropFactor',0.2, ...
     'MiniBatchSize',10000, ...
     'ValidationData',{Xval,Yval},...
-    'CheckpointPath','/rc_scratch/luya7574/FM21/diff/',...
+    'CheckpointPath','/rc_scratch/luya7574/FM21/baye/',...
     ...'ExecutionEnvironment','cpu',...
     ...'WorkerLoad',4,...
     'Verbose',1);
 
 %% Train.
 net = trainNetwork(Xtrn,Ytrn,layers,options);
-save('../data/final_net_diff.mat','net')
+save('../data/final_net_baye.mat','net')
 
-
-%load('../data/final_net_diff.mat','net')
-load('/rc_scratch/luya7574/FM21/diff/net_checkpoint__1870__2021_03_28__19_59_35.mat')
+load('/rc_scratch/luya7574/FM21/baye/net_checkpoint__2420__2021_03_28__18_15_38.mat')
 valPred = predict(net,Xval);
 
-for d = 1000 : 69: 9000
+for d = 89:100:1000
     plot(Xval{d}); hold on; 
-    scatter(41,Xval{d}(end)+valPred(d),'filled');hold on; 
-    scatter(41,Xval{d}(end)+Yval(d),'filled');
-    legend(["X","predicted","actual"],'Location','northwest');
-    saveas(gcf,'viewsample.png');clf();
-    pause(5)
+    scatter(41,Yval(d,1),'filled');hold on; 
+    scatter(41,valPred(d,1),'filled');hold on;
+    %scatter(41,valPred(d,1)-valPred(d,2),'filled');hold on;
+    %scatter(41,valPred(d,1)+valPred(d,2),'filled');
+    legend(["X","actual","predicted\_mean"],'Location','northwest');
+    saveas(gcf,'viewsample_baye.png');clf();
+    pause(10)
 end
 
-mean(.25*(sign(valPred)-sign(Yval)).^2)
+Xvalmat = cell2mat(Xval);
+Xvalmat = Xvalmat(:,end);
+diff1 = [abs(Yval(:,1)-Xvalmat) abs(Yval(:,1)-valPred(:,1))];
+booldiff = zeros(size(diff1,1));
+for ii = 1 : size(diff1,1)
+    if diff1(ii,1)>diff1(ii,2)
+        booldiff(ii)=1;
+    else
+        booldiff(ii)=0;
+    end
+end
+mean(booldiff)
