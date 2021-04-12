@@ -3,7 +3,7 @@ k = 3;
 ds = (5:5:100);
 EFmeans = zeros(length(ds),1);
 EFvars = zeros(length(ds),1)
-for jj = 1 : 15
+for jj = 1 : 20
     winners = ds(jj);
     load(sprintf('../data/%03d-portfolio-010.mat',winners),'means','vars','maxn','happinesses');
     lambdas = linspace(0.05,50,5000);
@@ -58,7 +58,7 @@ load('../data/010-EFstats.mat')
 EFmeans010=EFmeans; EFvars010=EFvars;
 load('../data/100-EFstats.mat')
 EFmeans100=EFmeans; EFvars100=EFvars;
-dd=15;
+dd=20;
 subplot(121)
 plot(ds(1:dd),EFmeans000(1:dd));hold on
 plot(ds(1:dd),EFmeans100(1:dd));hold on
@@ -77,3 +77,47 @@ legend(["000","100","010"])
 th=title({"Average var return over size of portfolio" ""})
 set(gcf, 'Position',  [100, 100, 800, 400])
 saveas(gcf,"../figs/000-100-010.png")
+
+
+load('../data/cool_strategy.mat')
+scatter(vars, means, 'filled','r');
+%set(gca,'xscale','log')
+xlabel('Vars')
+ylabel('Means')
+EFmeans=mean(means);
+EFvars=mean(vars);
+title(sprintf('cool strategy: Efficient Frontier: [mean,var]=[%.3f,%1.1e]',EFmeans,EFvars))
+saveas(gcf,'../figs/coolEF.png')
+
+d=50;
+nL=1000;
+lambdas = linspace(0.01,50,nL);
+alphas = zeros(size(lambdas));
+ns = zeros(size(lambdas));
+for jj = 1 : length(lambdas)
+    [a,n]=mapl2a(lambdas(jj),d);
+    alphas(jj)=a;
+    ns(jj)=n;
+end
+clf;
+yyaxis left;
+plot(lambdas,alphas);
+ylabel('Alpha values');
+yyaxis right;
+plot(lambdas,ns)
+ylabel('Number of winners')
+xlabel('Lambdas')
+title('Mapping lambda to winners')
+saveas(gcf,'../figs/l2w.png')
+
+clf;
+yyaxis left;
+scatter(lambdas,means);
+ylabel('Means');
+yyaxis right;
+scatter(lambdas,vars)
+set(gca,'yscale','log')
+ylabel('Variances')
+xlabel('Lambdas')
+title('lambda vs Mean-Variance')
+saveas(gcf,'../figs/l2mv_scatter.png')
