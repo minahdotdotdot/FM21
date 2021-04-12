@@ -1,6 +1,6 @@
 clear all; close all; clf;
 %% Experiment E
-% We will try our cool strategy with k=0.5;
+% We will try our cool strategy with k=0.25;
 addpath('../../MathWorks');
 T = 500;
 rng(123);
@@ -10,7 +10,7 @@ d = 50;
 nL=1000;
 lambdas = linspace(0.01,50,nL);
 trials = 500;
-k=0.5;
+k=0.25;
 initialize_sim
 results = zeros(nL,trials);
 for jj = 1 : length(lambdas)
@@ -35,4 +35,4 @@ for ll = 1 : length(lambdas)
     maxn(ll)= ind;
     happinesses(ll)=val;
 end
-save('../data/cool_strategy.mat','means','vars','maxn','happinesses','results')
+save('../data/cool_strategy_k25.mat','means','vars','maxn','happinesses','results')

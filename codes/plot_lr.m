@@ -116,7 +116,7 @@ scatter(lambdas,means);
 ylabel('Means');
 yyaxis right;
 scatter(lambdas,vars)
-set(gca,'yscale','log')
+%set(gca,'yscale','log')
 ylabel('Variances')
 xlabel('Lambdas')
 title('lambda vs Mean-Variance')
