@@ -33,11 +33,11 @@ for jj = 1 : 16
     %title(sprintf('%d sized portfolio, min happiness=%.4f',winners,min(happinesses-1)))
 
     subplot(1,3,3)
-    scatter(vars.^2, means, 'filled','r');
+    scatter(vars, means, 'filled','r');
     set(gca,'xscale','log')
     xlabel('Vars')
     ylabel('Means')
-    title('Efficient Frontier')
+    title(sprintf('Efficient Frontier, [mean,var]=[%.3f,%.3f]',mean(means),mean(vars)))
 
 
     set(gcf, 'Position',  [100, 100, 800, 300])
