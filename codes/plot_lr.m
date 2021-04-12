@@ -5,7 +5,7 @@ EFmeans = zeros(length(ds),1);
 EFvars = zeros(length(ds),1)
 for jj = 1 : 17
     winners = ds(jj);
-    load(sprintf('../data/%03d-portfolio.mat',winners),'means','vars','maxn','happinesses');
+    load(sprintf('../data/%03d-portfolioC.mat',winners),'means','vars','maxn','happinesses');
     lambdas = linspace(0.2,30,5000);
     maxn = zeros(size(lambdas,2),k);
     happinesses = zeros(size(lambdas,2),k);
@@ -45,7 +45,31 @@ for jj = 1 : 17
 
 
     set(gcf, 'Position',  [100, 100, 800, 300])
-    saveas(gcf,sprintf('../figs/lr000_%03d.png',winners)) 
+    saveas(gcf,sprintf('../figs/lr100_%03d.png',winners)) 
     clf;
 end
-save('../data/000-EFstats.mat','EFmeans','EFvars')
+save('../data/100-EFstats.mat','EFmeans','EFvars')
+
+%%
+clf;
+load('../data/000-EFstats.mat')
+EFmeans000=EFmeans; EFvars000=EFvars;
+load('../data/100-EFstats.mat')
+EFmeans100=EFmeans; EFvars100=EFvars;
+dd=17;
+subplot(121)
+plot(ds(1:dd),EFmeans000(1:dd));hold on
+plot(ds(1:dd),EFmeans100(1:dd));hold on
+xlabel("Size of portfolio")
+ylabel("Average mean return")
+legend(["stocks","returns"])
+title("Average mean return over size of portfolio")
+ax=subplot(122)
+plot(ds(1:dd),EFvars000(1:dd));hold on
+plot(ds(1:dd),EFvars100(1:dd));hold on
+xlabel("Size of portfolio")
+ylabel("Average var return")
+legend(["stocks","returns"])
+th=title({"Average var return over size of portfolio" ""})
+set(gcf, 'Position',  [100, 100, 800, 400])
+saveas(gcf,"../figs/000-100.png")
