@@ -1,5 +1,5 @@
-%% Experiment B
-% We will try equal weights for the top n (by price) stocks.
+%% Experiment D
+% We will try equal weights for the top n (by price) stocks, have nonzero weights for the bottom.
 addpath('../../MathWorks');
 T = 500;
 rng(123);
@@ -24,7 +24,7 @@ for jj = 1 : length(ds)
             if rem(t,10)==0
                 [d,n,t]
             end
-            simObj = equal_topn(simObj,n);
+            simObj = equal_topn_nzb(simObj,n);
             results(ii,t) = simObj.R_hist(end);
         end
     end
@@ -39,5 +39,5 @@ for jj = 1 : length(ds)
         maxn(ll)= ind;
         happinesses(ll)=val;
     end
-    save(sprintf('../data/%03d-portfolio.mat',d),'means','vars','maxn','happinesses')
+    save(sprintf('../data/%03d-portfolio-010.mat',d),'means','vars','maxn','happinesses')
 end

@@ -1,6 +1,6 @@
 function simObj =equal_topn_nzb(simObj, winners)
     % Pick best-performing stocks each period
-    a = (1+(winners).simObj.d)/2;
+    a = (1+(winners)/simObj.d)/2;
     b = 1-a;
     if nargin<2
         lambda = 0.5;
