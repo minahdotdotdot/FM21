@@ -1,7 +1,9 @@
 addpath('../../MathWorks');
 k = 3;
 ds = (5:5:100);
-for jj = 1 : 16
+EFmeans = zeros(length(ds),1);
+EFvars = zeros(length(ds),1)
+for jj = 1 : 17
     winners = ds(jj);
     load(sprintf('../data/%03d-portfolio.mat',winners),'means','vars','maxn','happinesses');
     lambdas = linspace(0.2,30,5000);
@@ -37,10 +39,13 @@ for jj = 1 : 16
     set(gca,'xscale','log')
     xlabel('Vars')
     ylabel('Means')
-    title(sprintf('Efficient Frontier, [mean,var]=[%.3f,%.3f]',mean(means),mean(vars)))
+    EFmeans(jj)=mean(means);
+    EFvars(jj)=mean(vars);
+    title(sprintf('Efficient Frontier: [mean,var]=[%.3f,%1.1e]',EFmeans(jj),EFvars(jj)))
 
 
     set(gcf, 'Position',  [100, 100, 800, 300])
     saveas(gcf,sprintf('../figs/lr000_%03d.png',winners)) 
     clf;
 end
+save('../data/000-EFstats.mat','EFmeans','EFvars')
