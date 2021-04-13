@@ -1,6 +1,6 @@
 clear all; close all; clf;
 %% Experiment E
-% We will try our cool strategy but weighted.
+% We will try our cool strategy with k=0.5, lambda_0=10;
 addpath('../../MathWorks');
 T = 500;
 rng(123);
@@ -10,6 +10,8 @@ d = 50;
 nL=1000;
 lambdas = linspace(0.01,50,nL);
 trials = 500;
+k=0.25;
+lambda_0=10;
 initialize_sim
 results = zeros(nL,trials);
 for jj = 1 : length(lambdas)
@@ -19,7 +21,7 @@ for jj = 1 : length(lambdas)
         % if rem(t,50)==0
         %     [jj,t]
         % end
-        simObj = cool_strategy_weighted(simObj,lambda);
+        simObj = cool_strategy(simObj,lambda,k,lambda_0);
         results(jj,t) = simObj.R_hist(end);
     end
 end
@@ -34,4 +36,4 @@ for ll = 1 : length(lambdas)
     maxn(ll)= ind;
     happinesses(ll)=val;
 end
-save('../data/cool_strategy_weighted.mat','means','vars','maxn','happinesses','results') 
+save('../data/cool_strategy_k25l10.mat','means','vars','maxn','happinesses','results')

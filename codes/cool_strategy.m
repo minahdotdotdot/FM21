@@ -1,6 +1,6 @@
-function simObj =cool_strategy(simObj, lambda,k)
+function simObj =cool_strategy(simObj, lambda,k,lambda_0)
     % Pick best-performing stocks each period
-    [a,n] = mapl2a(lambda,simObj,k);
+    [a,n] = mapl2a(lambda, simObj.d, k, lambda_0);
     b = 1-a;
     if nargin<2
         lambda = 0.5;
@@ -19,22 +19,5 @@ function simObj =cool_strategy(simObj, lambda,k)
             w = w / sum(w);
             simObj.step(w);
         end          
-    end
-end
-
-function n = mapl2n(lambda,simObj,k)
-    d = simObj.d;
-    %k=0.5;
-    n = round(1+((d-1)/(1+exp(-k*(lambda-(d/2))))));
-end
-
-function [a,n] = mapl2a(lambda,simObj,k)
-    d = simObj.d;
-    n = mapl2n(lambda,simObj,k);
-    lambda_0=(3/4)*d;
-    if lambda < lambda_0
-        a = 1+((-1+n/d)/(lambda_0))*lambda;
-    else
-        a=n/d;
     end
 end

@@ -78,64 +78,44 @@ th=title({"Average var return over size of portfolio" ""})
 set(gcf, 'Position',  [100, 100, 800, 400])
 saveas(gcf,"../figs/000-100-010.png")
 
-%%
-load('../data/equal_weights.mat')
-EFmeans_ew=means;
-EFvars_ew=vars;
+
 load('../data/cool_strategy.mat')
-EFmeans_cool=means;
-EFvars_cool=vars;
-xmin = min([min(EFvars_ew),min(EFvars_cool)]);
-xmax = max([max(EFvars_ew),max(EFvars_cool)]);
-ymin = min([min(EFmeans_ew),min(EFmeans_cool)]);
-ymax = max([max(EFmeans_ew),max(EFmeans_cool)]);
-
-subplot(121)
-scatter(EFvars_ew, EFmeans_ew, 'filled','r');
-set(gca,'xscale','log')
+scatter(vars, means, 'filled','r');
+%set(gca,'xscale','log')
 xlabel('Vars')
 ylabel('Means')
-xlim([xmin,xmax])
-ylim([ymin,ymax])
-title(sprintf('Equal weights: Efficient Frontier: [mean,var]=[%.3f,%1.1e]',mean(EFmeans_ew),mean(EFvars_ew)))
-
-subplot(122)
-scatter(EFvars_cool, EFmeans_cool, 'filled','r');
-set(gca,'xscale','log')
-xlabel('Vars')
-ylabel('Means')
-xlim([xmin,xmax])
-ylim([ymin,ymax])
 EFmeans=mean(means);
 EFvars=mean(vars);
-title(sprintf('Cool strategy: Efficient Frontier: [mean,var]=[%.3f,%1.1e]',mean(EFmeans_cool),mean(EFvars_cool)))
+title(sprintf('cool strategy k=.25: Efficient Frontier: [mean,var]=[%.3f,%1.1e]',EFmeans,EFvars))
+saveas(gcf,'../figs/cool_k25_EF.png')
 
-saveas(gcf,'../figs/EF-compare.png')
-%%
 d=50;
 nL=1000;
+k=0.25;
 lambdas = linspace(0.01,50,nL);
+lambdas = lambdas(:);
 alphas = zeros(size(lambdas));
 ns = zeros(size(lambdas));
 for jj = 1 : length(lambdas)
-    [a,n]=mapl2a(lambdas(jj),d);
+    [a,n]=mapl2a(lambdas(jj),d,k);
     alphas(jj)=a;
     ns(jj)=n;
 end
 clf;
 yyaxis left;
-plot(lambdas,alphas);
+plot(lambdas,alphas);hold on;
 ylabel('Alpha values');
 yyaxis right;
 plot(lambdas,ns)
 ylabel('Number of winners')
 xlabel('Lambdas')
 title('Mapping lambda to winners')
-saveas(gcf,'../figs/l2w.png')
+saveas(gcf,'../figs/l2w_k25.png')
 
 clf;
 yyaxis left;
-scatter(lambdas,means);
+scatter(lambdas,means);hold on;
+plot(lambdas,means-(lambdas.*vars),'k','LineWidth',1)
 ylabel('Means');
 yyaxis right;
 scatter(lambdas,vars)
@@ -143,4 +123,48 @@ scatter(lambdas,vars)
 ylabel('Variances')
 xlabel('Lambdas')
 title('lambda vs Mean-Variance')
-saveas(gcf,'../figs/l2mv_scatter.png')
+saveas(gcf,'../figs/l2mv_scatter_h.png')
+
+
+
+
+clf;
+load('../data/cool_strategy.mat')
+means_k50l25 = means; vars_k50l25 = vars;
+load('../data/cool_strategy_k25.mat')
+means_k25l25 = means; vars_k25l25 = vars;
+load('../data/cool_strategy_k50l10.mat')
+means_k50l10 = means; vars_k50l10=vars;
+load('../data/cool_strategy_k25l10.mat')
+means_k25l10 = means; vars_k25l10=vars;
+load('../data/equal_weights.mat')
+means_baseline = mean(means)*ones(size(means_k25l10)); 
+vars_baseline=mean(vars)*ones(size(means_k25l10));
+
+
+d=50;
+nL=1000;
+lambdas = linspace(0.01,50,nL); lambdas=lambdas(:);
+scatter(1*lambdas,means_baseline-(1*lambdas.*vars_baseline),'filled');hold on;
+%scatter(.1*lambdas,means_baseline-(.1*lambdas.*vars_baseline),'filled');hold on;
+scatter(1*lambdas,means_k50l25-(1*lambdas.*vars_k50l25));hold on;
+scatter(1*lambdas,means_k25l25-(1*lambdas.*vars_k25l25));hold on;
+scatter(1*lambdas,means_k50l10-(1*lambdas.*vars_k50l10));hold on;
+scatter(1*lambdas,means_k25l10-(1*lambdas.*vars_k25l10));hold on;
+xlabel('Lambdas')
+ylabel('Objective Function')
+legend(["equal weights", "k=0.50, l0=25","k=0.25, l0=25","k=0.50, l0=10","k=0.25,, l0=10"])
+saveas(gcf,'../figs/compare_ks_h_l1.png'); clf;
+
+lst=201;
+lf=1000;
+scatter(vars_k25l25(lst:lf), means_k25l25(lst:lf), 250, 'filled','MarkerFaceAlpha',1); hold on;
+scatter(vars_k25l10(lst:lf), means_k25l10(lst:lf), 150, 'filled','MarkerFaceAlpha',1); hold on;
+scatter(vars_k50l25(lst:lf), means_k50l25(lst:lf), 70, 'filled','MarkerFaceAlpha',1); hold on;
+scatter(vars_k50l10(lst:lf), means_k50l10(lst:lf), 25, 'k', 'filled','MarkerFaceAlpha',1); hold on;
+%set(gca,'xscale','log')
+xlabel('Vars')
+ylabel('Means')
+legend(["k=.25, \lambda_0=25","k=.25, \lambda_0=10","k=.50, \lambda_0=25","k=.50, \lambda_0=10"])
+title(sprintf("Compare Efficient Frontiers, k=0.50 lambda in (%.4f,%.4f)",lambdas(lst),lambdas(lf)))
+saveas(gcf,sprintf("../figs/EF_%.4f_%.4f.png",lambdas(lst),lambdas(lf)));clf
