@@ -78,17 +78,40 @@ th=title({"Average var return over size of portfolio" ""})
 set(gcf, 'Position',  [100, 100, 800, 400])
 saveas(gcf,"../figs/000-100-010.png")
 
-
+%%
+load('../data/equal_weights.mat')
+EFmeans_ew=means;
+EFvars_ew=vars;
 load('../data/cool_strategy.mat')
-scatter(vars, means, 'filled','r');
-%set(gca,'xscale','log')
+EFmeans_cool=means;
+EFvars_cool=vars;
+xmin = min([min(EFvars_ew),min(EFvars_cool)]);
+xmax = max([max(EFvars_ew),max(EFvars_cool)]);
+ymin = min([min(EFmeans_ew),min(EFmeans_cool)]);
+ymax = max([max(EFmeans_ew),max(EFmeans_cool)]);
+
+subplot(121)
+scatter(EFvars_ew, EFmeans_ew, 'filled','r');
+set(gca,'xscale','log')
 xlabel('Vars')
 ylabel('Means')
+xlim([xmin,xmax])
+ylim([ymin,ymax])
+title(sprintf('Equal weights: Efficient Frontier: [mean,var]=[%.3f,%1.1e]',mean(EFmeans_ew),mean(EFvars_ew)))
+
+subplot(122)
+scatter(EFvars_cool, EFmeans_cool, 'filled','r');
+set(gca,'xscale','log')
+xlabel('Vars')
+ylabel('Means')
+xlim([xmin,xmax])
+ylim([ymin,ymax])
 EFmeans=mean(means);
 EFvars=mean(vars);
-title(sprintf('cool strategy: Efficient Frontier: [mean,var]=[%.3f,%1.1e]',EFmeans,EFvars))
-saveas(gcf,'../figs/coolEF.png')
+title(sprintf('Cool strategy: Efficient Frontier: [mean,var]=[%.3f,%1.1e]',mean(EFmeans_cool),mean(EFvars_cool)))
 
+saveas(gcf,'../figs/EF-compare.png')
+%%
 d=50;
 nL=1000;
 lambdas = linspace(0.01,50,nL);
