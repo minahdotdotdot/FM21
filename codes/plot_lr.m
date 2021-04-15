@@ -145,26 +145,38 @@ vars_baseline=mean(vars)*ones(size(means_k25l10));
 d=50;
 nL=1000;
 lambdas = linspace(0.01,50,nL); lambdas=lambdas(:);
-scatter(1*lambdas,means_baseline-(1*lambdas.*vars_baseline),'filled');hold on;
+plot(1*lambdas,means_baseline-(1*lambdas.*vars_baseline),'g',"LineWidth",5);hold on;
 %scatter(.1*lambdas,means_baseline-(.1*lambdas.*vars_baseline),'filled');hold on;
-scatter(1*lambdas,means_k50l25-(1*lambdas.*vars_k50l25));hold on;
-scatter(1*lambdas,means_k25l25-(1*lambdas.*vars_k25l25));hold on;
-scatter(1*lambdas,means_k50l10-(1*lambdas.*vars_k50l10));hold on;
-scatter(1*lambdas,means_k25l10-(1*lambdas.*vars_k25l10));hold on;
+c1 = 	[0, 0.4470, 0.7410];
+c2 = 	[0.8500, 0.3250, 0.0980];
+c3 = [0.9290, 0.6940, 0.1250];
+scatter(1*lambdas,means_k25l25-(1*lambdas.*vars_k25l25), 250,c1,'filled');hold on;
+scatter(1*lambdas,means_k25l10-(1*lambdas.*vars_k25l10), 150,c2,'filled');hold on;%,'o');hold on;
+scatter(1*lambdas,means_k50l25-(1*lambdas.*vars_k50l25), 70,c3,'filled');hold on;%,'y');hold on;
+scatter(1*lambdas,means_k50l10-(1*lambdas.*vars_k50l10), 25,'k','filled');hold on;%,'k');hold on;
+
 xlabel('Lambdas')
 ylabel('Objective Function')
 legend(["equal weights", "k=0.50, l0=25","k=0.25, l0=25","k=0.50, l0=10","k=0.25,, l0=10"])
 saveas(gcf,'../figs/compare_ks_h_l1.png'); clf;
 
-lst=201;
+lst=1;
 lf=1000;
-scatter(vars_k25l25(lst:lf), means_k25l25(lst:lf), 250, 'filled','MarkerFaceAlpha',1); hold on;
-scatter(vars_k25l10(lst:lf), means_k25l10(lst:lf), 150, 'filled','MarkerFaceAlpha',1); hold on;
-scatter(vars_k50l25(lst:lf), means_k50l25(lst:lf), 70, 'filled','MarkerFaceAlpha',1); hold on;
-scatter(vars_k50l10(lst:lf), means_k50l10(lst:lf), 25, 'k', 'filled','MarkerFaceAlpha',1); hold on;
+lst2=1;
+lf2=1000;
+scatter(sqrt(vars_k25l25(lst:lf)/500), means_k25l25(lst:lf), 250, 'filled','MarkerFaceAlpha',1); hold on;
+scatter(sqrt(vars_k25l10(lst2:lf2)/500), means_k25l10(lst2:lf2), 150, 'filled','MarkerFaceAlpha',1); hold on;
+scatter(sqrt(vars_k50l25(lst:lf)/500), means_k50l25(lst:lf), 70, 'filled','MarkerFaceAlpha',1); hold on;
+scatter(sqrt(vars_k50l10(lst2:lf2)/500), means_k50l10(lst2:lf2), 25, 'k', 'filled','MarkerFaceAlpha',1); hold on;
+scatter(sqrt(vars_baseline/500),means_baseline,200,'gd','filled');hold on;
 %set(gca,'xscale','log')
-xlabel('Vars')
-ylabel('Means')
-legend(["k=.25, \lambda_0=25","k=.25, \lambda_0=10","k=.50, \lambda_0=25","k=.50, \lambda_0=10"])
-title(sprintf("Compare Efficient Frontiers, k=0.50 lambda in (%.4f,%.4f)",lambdas(lst),lambdas(lf)))
-saveas(gcf,sprintf("../figs/EF_%.4f_%.4f.png",lambdas(lst),lambdas(lf)));clf
+xlabel('Standard Deviation')
+ylabel('Mean')
+legend([sprintf("k=.25, l_0=25")..., lrange=[%.1f,%.1f]",lambdas(lst),lambdas(lf)),...
+sprintf("k=.25, l_0=10")..., lrange=[%.1f,%.1f]",lambdas(lst2),lambdas(lf2)),...
+sprintf("k=.50, l_0=25")..., lrange=[%.1f,%.1f]",lambdas(lst),lambdas(lf)),...
+sprintf("k=.50, l_0=10")..., lrange=[%.1f,%.1f]",lambdas(lst2),lambdas(lf2)),...
+"Equal Weights Strategy"],'Location','northwest')
+title('Efficient Frontier')
+%title(sprintf("Compare Efficient Frontiers, lambda in (%.4f,%.4f)",lambdas(lst),lambdas(lf)))
+saveas(gcf,"../figs/EF_GL.png");clf%.1f_%.1f.png",lambdas(lst),lambdas(lf)));clf
