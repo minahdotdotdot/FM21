@@ -1,4 +1,4 @@
-function simObj =cool_strategy(simObj, lambda)
+function simObj =DKLYstrategy(simObj, lambda)
     k = .25;
     lambda_0=25;
     % Compute alpha and n.
